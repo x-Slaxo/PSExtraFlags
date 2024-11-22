@@ -1,0 +1,4 @@
+name: PSExtraFlags
+version: '1.0-SNAPSHOT'
+main: com.survivaldub.pSExtraFlags.PSExtraFlags
+api-version: '1.21'
