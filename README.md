@@ -14,3 +14,7 @@
 
 ## Commands & Permissions
 Los comandos y permisos deben ser de ProtectionStones / Commands and permissions should be the same as ProtectionStones
+
+## API-Documentation
+* WorldGuard: https://worldguard.enginehub.org/en/latest/developer/
+* ProtectionStones: https://espidev.gitbook.io/protectionstones/api
