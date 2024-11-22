@@ -4,15 +4,13 @@ import com.survivaldub.pSExtraFlags.flags.CustomFlags;
 import com.survivaldub.pSExtraFlags.listeners.TeleportListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class PSExtraFlags extends JavaPlugin {
-
+public class PSExtraFlags extends JavaPlugin {
     @Override
     public void onEnable() {
         // Registro de flags y listeners
         CustomFlags.registerFlags();
         getServer().getPluginManager().registerEvents(new TeleportListener(), this);
-        getLogger().info("PSExtraFlags ha sido habilitado.");
-
+        this.getLogger().info("PSExtraFlags ha sido habilitado.");
     }
 
     @Override
