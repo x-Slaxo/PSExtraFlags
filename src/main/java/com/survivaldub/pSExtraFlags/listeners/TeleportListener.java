@@ -1,35 +1,51 @@
 package com.survivaldub.pSExtraFlags.listeners;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.util.Location;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.managers.RegionContainer;
-import com.sk89q.worldguard.protection.managers.RegionQuery;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 import com.survivaldub.pSExtraFlags.flags.CustomFlags;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class TeleportListener implements Listener {
+
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
-        Location to = event.getTo();
+        org.bukkit.Location bukkitLocation = event.getTo();
 
-        if (to == null) return;
+        if (bukkitLocation == null) return;
 
-        // Obtener la región usando WorldGuard y verificar la flag
-        RegionContainer container = WorldGuardPlugin.inst().getRegionContainer();
+        // Convertir la ubicación de Bukkit a WorldEdit
+        Location location = BukkitAdapter.adapt(bukkitLocation);
+
+        // Obtener la instancia de WorldGuard y la consulta de regiones
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionQuery query = container.createQuery();
-        ApplicableRegionSet set = query.getApplicableRegions(to);
 
-        if (set.testState(player, CustomFlags.PREVENT_TELEPORT)) {
-            // Verificar si el jugador es miembro de alguna región aplicable
-            if (!set.getRegions().stream().anyMatch(region -> region.isMember(player.getUniqueId()))) {
-                event.setCancelled(true);
-                player.sendMessage(ChatColor.RED + "¡No puedes teletransportarte a esta región!");
+        // Obtener las regiones aplicables a la ubicación de destino
+        ApplicableRegionSet regions = query.getApplicableRegions(location);
+
+        // Convertir el jugador de Bukkit a un LocalPlayer de WorldGuard
+        LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
+
+        // Verificar si la flag está presente y activada en alguna de las regiones
+        if (regions.testState(localPlayer, CustomFlags.PREVENT_TELEPORT)) {
+            for (ProtectedRegion region : regions.getRegions()) {  // Obtener las regiones individuales y recorrerlas
+                if (!region.getMembers().contains(localPlayer.getUniqueId())) {
+                    event.setCancelled(true);
+                    player.sendMessage(ChatColor.RED + "¡No puedes teletransportarte a esta región!");
+                    return;
+                }
             }
         }
     }
